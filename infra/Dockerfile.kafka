@@ -1,0 +1,22 @@
+# Dockerfile.kafka - Pure Apache Kafka 3.8.0 KRaft + CLI Tools (PATH Fixed)
+FROM apache/kafka:3.8.0
+
+USER root
+
+# Add curl (Alpine apk) + clean cache properly
+RUN apk update && \
+    apk add --no-cache curl && \
+    rm -rf /var/cache/apk/*
+
+# Ensure all Kafka CLI scripts executable (safety)
+RUN chmod +x /opt/kafka/bin/*.sh
+
+# Fix PATH for docker exec (KRaft CLI magic)
+ENV PATH="/opt/kafka/bin:${PATH}"
+
+# Drop to appuser (security)
+USER appuser
+
+# Health check (KRaft broker ready)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1

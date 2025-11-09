@@ -9,48 +9,69 @@ services:
       - ./mosquitto/config:/mosquitto/config
       - ./mosquitto/data:/mosquitto/data
       - ./mosquitto/log:/mosquitto/log
+    healthcheck:
+      test: ["CMD", "mosquitto", "-h", "127.0.0.1", "-p", "1883", "-t", "test"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
   kafka:
-    image: apache/kafka:3.8.0
+    image: shiva/kafka-kraft-tools:3.8.0
     container_name: kafka
+    hostname: kafka
     user: root
     ports:
-      - "9092:9092"   # host → container
+      - "9092:9092"
     environment:
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-
-      # Listeners: CONTROLLER internal, HOST for laptop, DOCKER for inside container
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
-      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
-
-      # Single-node shortcuts (prevents replication errors)
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-
-      # Logging
       KAFKA_LOG_DIRS: /kafka-logs
-      
     volumes:
       - ./kafka_data:/kafka-logs
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
+  mqtt-kafka-bridge:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.bridge
+    container_name: mqtt_kafka_bridge
+    depends_on:
+      mqtt:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+    environment:
+      MQTT_BROKER: mqtt_broker
+      KAFKA_BROKER: kafka:9092
+    volumes:
+      - ../src:/app
 
   mongodb:
     image: mongo:latest
     container_name: mongodb
-    user: root   # <--- ADD THIS
+    user: root
     ports:
       - "27017:27017"
     volumes:
       - ./mongodb_data:/data/db
     command: ["mongod", "--bind_ip_all"]
-    
+
 volumes:
   kafka_data:
   mongodb_data:
