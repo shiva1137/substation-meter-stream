@@ -25,26 +25,4 @@ __pycache__/
 
 # Ignore environment-specific files
 .env
-*.env# Ignore Kafka data files
-infra/kafka_data/
-# Ignore MongoDB data files
-infra/mongodb_data/
-# Ignore Mosquitto log files
-infra/mosquitto/log/
-# Ignore Python compiled files
-*.pyc
-__pycache__/
-# Ignore other temporary or generated files
-*.log
-*.lock
-*.wt
-*.bson
-*.br
-*.checkpoint
-*.index
-*.timeindex
-*.snapshot
-*.turtle
-# Ignore environment-specific files
-.env
 *.env
