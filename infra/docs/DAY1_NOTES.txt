@@ -1,7 +1,0 @@
-Day 1 - 09 Nov 2025
-✓ Docker + MQTT + Kafka + MongoDB running
-✓ Realistic meter simulator with Faker (TN IDs, IST timestamps)
-✓ MQTT → Kafka bridge working with message_hash dedup
-✓ Full pipeline verified with 4 terminals
-✓ GitHub repo updated + screenshot proof
-Learnings: Faker locale 'en_IN' + ZoneInfo('Asia/Kolkata') = pro data
