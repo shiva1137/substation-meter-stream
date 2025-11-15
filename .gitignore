@@ -1,11 +1,32 @@
 # Ignore Kafka data files
 infra/kafka_data/
+kafka_data/
+
+# Ignore Kafka log files
+infra/kafka/log/
+kafka/log/
+*.kafka.log
 
 # Ignore MongoDB data files
 infra/mongodb_data/
+mongodb_data/
 
-# Ignore Mosquitto log files
+# Ignore MongoDB log files
+infra/mongodb/log/
+mongodb/log/
+*.mongo.log
+*.mongodb.log
+
+# Ignore MQTT/Mosquitto data files
+infra/mosquitto/data/
+mosquitto/data/
+mqtt/data/
+
+# Ignore MQTT/Mosquitto log files
 infra/mosquitto/log/
+mosquitto/log/
+mqtt/log/
+*.mqtt.log
 
 # Ignore Python compiled files
 *.pyc
