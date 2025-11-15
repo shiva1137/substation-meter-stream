@@ -64,7 +64,7 @@ try:
             logger.info(f"Published successfully: {payload}")
         else:
             logger.error(f"Publish failed with code {result.rc}")
-        time.sleep(15)  # 15 seconds for testing; in real, could be 900 for 15 mins
+        time.sleep(2)  # 15 seconds for testing; in real, could be 900 for 15 mins
 except KeyboardInterrupt:
     logger.info("Simulator stopping...")
 finally:
